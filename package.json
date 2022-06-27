@@ -2,14 +2,17 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "db": "^3.3.1",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "express-async-errors": "^3.1.1",
     "http-status-codes": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.3.6",
+    "mongo": "^0.1.0",
+    "mongoose": "^6.3.8",
     "morgan": "^1.10.0",
     "normalize.css": "^8.0.1",
+    "react": "^18.2.0",
     "validator": "^13.7.0"
   },
   "name": "jobify",
@@ -25,7 +28,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^7.2.1",
+    "concurrently": "^7.2.2",
     "nodemon": "^2.0.16"
   }
 }
