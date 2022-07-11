@@ -11,10 +11,11 @@ const FormRowSelect = ({labelText,name,value,handleChange,list}) => {
                 className='form-select'
                 >
                     {list.map((itemValue,index)=>{
-                        return
+                        return (
                         <option key={index} value={itemValue}>
                             {itemValue}
                         </option>
+                        )
                     })}
                 </select>
             </div>

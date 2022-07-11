@@ -24,6 +24,15 @@ import {
   CREATE_JOB_BEGIN,
   CREATE_JOB_SUCCESS,
   CREATE_JOB_ERROR,
+  GET_JOBS_BEGIN,
+  GET_JOBS_SUCCESS,
+  SET_EDIT_JOB,
+  DELETE_JOB_BEGIN,
+  EDIT_JOB_BEGIN,
+  EDIT_JOB_SUCCESS,
+  EDIT_JOB_ERROR,
+  SHOW_STATS_BEGIN,
+  SHOW_STATS_SUCCESS,
 } from './actions'
 
 
@@ -49,6 +58,12 @@ const initialState = {
   jobType: 'full-time',
   statusOptions:['interview', 'declined', 'pending'],
   status:'pending',
+  jobs: [],
+  totalJobs: 0,
+  numOfPages: 1,
+  page: 1,
+  stats: {},
+  monthlyApplications: [],
 }  
 
 const AppContext = React.createContext()
@@ -213,7 +228,7 @@ authFetch.interceptors.response.use(
         status,
       })
       dispatch({ type: CREATE_JOB_SUCCESS })
-      dispatch({ type: CLEAR_VALUES })
+     // dispatch({ type: CLEAR_VALUES })
     } catch (error) {
       if (error.response.status === 401) return
     dispatch({
@@ -221,7 +236,83 @@ authFetch.interceptors.response.use(
       payload: { msg: error.response.data.msg },
     })
     }
+    clearAlert()
   }
+
+  const getJobs = async () =>{
+    let url = `/jobs`
+
+    dispatch({type:GET_JOBS_BEGIN})
+    try {
+      const {data} = await authFetch(url)
+      const {jobs, totalJobs, numOfPages} = data
+      dispatch({
+      type: GET_JOBS_SUCCESS,
+      payload: {
+        jobs,
+        totalJobs,
+        numOfPages,
+      },
+    })
+    } catch (error) {
+      console.log(error.response)
+      // logoutUser()
+    }
+    clearAlert()
+  }
+
+const setEditJob = (id) => {
+  dispatch({ type: SET_EDIT_JOB, payload: { id } })
+}
+const editJob = async () =>{
+  dispatch({ type: EDIT_JOB_BEGIN })
+
+  try {
+    const {position, company, jobLocation, jobType, status} = state
+    await authFetch.patch(`/jobs/${state.editJobId}`,{
+      company,
+      position,
+      jobLocation,
+      jobType,
+      status,
+    })
+    dispatch({ type: EDIT_JOB_SUCCESS })
+    dispatch({ type:CLEAR_VALUES})
+  } catch (error) {
+    if(error.response.status === 401) return
+    dispatch({
+      type: EDIT_JOB_ERROR,
+      payload: { msg: error.response.data.msg },
+    })
+  }
+  clearAlert()
+}
+const deleteJob = async (jobId) =>{
+  dispatch({ type: DELETE_JOB_BEGIN })
+  try {
+    await authFetch.delete(`/jobs/${jobId}`)
+    getJobs()
+  } catch (error) {
+    console.log(error.response)
+    // logoutUser()
+  }
+  
+}
+const showStats = async () =>{
+  dispatch({ type: SHOW_STATS_BEGIN})
+  try {
+    const {data} = await authFetch('/jobs/stats')
+    dispatch({ type: SHOW_STATS_SUCCESS,
+    payload:{
+      status: data.defaultStats,
+      monthlyApplications: data.monthlyApplications,
+    },
+  })
+  } catch (error) {
+    // logoutUser()
+  }
+    clearAlert()
+}
   return (
     <AppContext.Provider
     value={{ ...state,
@@ -235,6 +326,11 @@ authFetch.interceptors.response.use(
     handleChange,
     clearValues,
     createJob,
+    getJobs,
+    setEditJob,
+    deleteJob,
+    editJob,
+    showStats,
     }}>
       {children}
     </AppContext.Provider>
